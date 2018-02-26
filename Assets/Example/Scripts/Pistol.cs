@@ -22,10 +22,10 @@ class Pistol : MonoBehaviour
             MakeBullet();
         }
 
-        for (int i = _bulletsPool.activeObjects.Count-1; i >= 0; i--)
+        foreach (var bullet in _bulletsPool)
         {
-            if (_bulletsPool.activeObjects[i].lifeTime <= 0)
-                _bulletsPool.Return(_bulletsPool.activeObjects[i]);
+            if (bullet.lifeTime <= 0)
+                _bulletsPool.Return(bullet);
         }
     }
 

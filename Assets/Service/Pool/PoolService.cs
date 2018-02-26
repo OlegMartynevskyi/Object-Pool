@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Service.Pool
 {    
-    public class PoolService<T> : ICreator<T> where T : Component
+    public class PoolService<T> : ICreator<T>, IEnumerable<T> where T : Component
     {
-        public readonly List<T> activeObjects = new List<T>();
+        private readonly List<T> activeObjects = new List<T>();
         private BasePool<T> _pool;
 
         private IPoolEventHandler eventHandler;
@@ -14,6 +15,14 @@ namespace Service.Pool
         {            
             eventHandler = poolEventHandler;
             _pool = poolFactory.MakePool(this);
+        }
+
+        public T this[int index]
+        {
+            get
+            {
+                return activeObjects[index];
+            }
         }
 
         T ICreator<T>.Instantiate(T prototype)
@@ -56,6 +65,19 @@ namespace Service.Pool
                 }
 #endif
             }
+        }        
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int i = activeObjects.Count - 1; i >= 0; --i)
+            {
+                yield return activeObjects[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
