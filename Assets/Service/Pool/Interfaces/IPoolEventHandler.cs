@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-
-namespace Service.Pool
+﻿namespace Service.Pool
 {
-    public interface IPoolEventHandler
+    public interface IActiveObjectsCollection<T>
     {
-        void OnInstantiate(Component component);
-        void OnGet(Component component);
-        void OnReturn(Component component);
+        void Init(T component);
+        void Add(T component);
+        bool Remove(T component);
     }
 }

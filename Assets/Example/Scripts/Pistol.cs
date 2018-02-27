@@ -8,11 +8,13 @@ class Pistol : MonoBehaviour
     [SerializeField]
     private float _bulletsLifeTime = 1f;
 
-    private PoolService<Bullet> _bulletsPool;    
+    private PoolService<Bullet> _bulletsPool;
+    private PoolActiveObjects<Bullet> _activeObjects;
 
     private void Start()
     {
-        _bulletsPool = new PoolService<Bullet>(new DefaultPoolEventHandler(), _bulletsPoolSetup);
+        _activeObjects = new PoolActiveObjects<Bullet>();
+        _bulletsPool = new PoolService<Bullet>(_activeObjects, _bulletsPoolSetup);
     }
 
     private void Update()
@@ -22,7 +24,7 @@ class Pistol : MonoBehaviour
             MakeBullet();
         }
 
-        foreach (var bullet in _bulletsPool)
+        foreach (var bullet in _activeObjects)
         {
             if (bullet.lifeTime <= 0)
                 _bulletsPool.Return(bullet);

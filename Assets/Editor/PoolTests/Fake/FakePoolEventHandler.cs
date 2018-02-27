@@ -1,26 +1,27 @@
 ﻿using UnityEngine;
+using Service.Pool;
 
 namespace Service.Pool.Test
 {
-    class FakePoolEventHandler : IPoolEventHandler
+    class FakePoolEventHandler<T> : IActiveObjectsCollection<T> where T : Component
     {
-        public bool GetTriggered { get; private set; }
-        public bool InstantiateTriggered { get; private set; }
-        public bool ReturnTriggered { get; private set; }
+        public bool AddTriggered { get; private set; }
+        public bool InitTriggered { get; private set; }
+        public bool RemoveTriggered { get; private set; }
 
-        public void OnGet(Component component)
+        public void Add(T component)
         {
-            GetTriggered = true;
+            AddTriggered = true;
         }
 
-        public void OnInstantiate(Component component)
+        public void Init(T component)
         {
-            InstantiateTriggered = true;
+            InitTriggered = true;
         }
 
-        public void OnReturn(Component component)
+        public bool Remove(T component)
         {
-            ReturnTriggered = true;
+            return RemoveTriggered = true;
         }
     }
 }

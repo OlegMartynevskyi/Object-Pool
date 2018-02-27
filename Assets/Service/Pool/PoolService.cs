@@ -1,28 +1,17 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
 
 namespace Service.Pool
 {    
-    public class PoolService<T> : ICreator<T>, IEnumerable<T> where T : Component
-    {
-        private readonly List<T> activeObjects = new List<T>();
+    public class PoolService<T> : ICreator<T> where T : Component
+    {        
         private BasePool<T> _pool;
 
-        private IPoolEventHandler eventHandler;
+        private IActiveObjectsCollection<T> _activeObjects;
 
-        public PoolService(IPoolEventHandler poolEventHandler, IPoolFactory poolFactory) 
+        public PoolService(IActiveObjectsCollection<T> activeObjects, IPoolFactory poolFactory) 
         {            
-            eventHandler = poolEventHandler;
+            _activeObjects = activeObjects;
             _pool = poolFactory.MakePool(this);
-        }
-
-        public T this[int index]
-        {
-            get
-            {
-                return activeObjects[index];
-            }
         }
 
         T ICreator<T>.Instantiate(T prototype)
@@ -32,7 +21,7 @@ namespace Service.Pool
             {
                 GameObject obj = Object.Instantiate(prototype.gameObject);
                 instance = obj.GetComponent<T>();
-                eventHandler.OnInstantiate(instance);
+                _activeObjects.Init(instance);
             }
             return instance;
         }
@@ -41,9 +30,8 @@ namespace Service.Pool
         {
             T result = _pool.Get();
             if (result != null)
-            {                
-                activeObjects.Add(result);
-                eventHandler.OnGet(result);
+            {                         
+                _activeObjects.Add(result);
             }
             return result;
         }
@@ -52,9 +40,8 @@ namespace Service.Pool
         {
             if (component != null)
             {
-                if (activeObjects.Remove(component))
-                {
-                    eventHandler.OnReturn(component);
+                if (_activeObjects.Remove(component))
+                {   
                     _pool.Return(component);
                 }                
 #if UNITY_EDITOR
@@ -65,19 +52,6 @@ namespace Service.Pool
                 }
 #endif
             }
-        }        
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            for (int i = activeObjects.Count - 1; i >= 0; --i)
-            {
-                yield return activeObjects[i];
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }
